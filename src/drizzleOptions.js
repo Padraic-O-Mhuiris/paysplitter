@@ -1,6 +1,5 @@
-import ComplexStorage from './../build/contracts/ComplexStorage.json'
-import SimpleStorage from './../build/contracts/SimpleStorage.json'
-import TutorialToken from './../build/contracts/TutorialToken.json'
+
+import Splitter from './../build/contracts/Splitter.json'
 
 const drizzleOptions = {
   web3: {
@@ -11,12 +10,10 @@ const drizzleOptions = {
     }
   },
   contracts: [
-    ComplexStorage,
-    SimpleStorage,
-    TutorialToken
+    Splitter
   ],
   events: {
-    SimpleStorage: ['StorageSet']
+    Splitter: ['SplitLog']
   },
   polls: {
     accounts: 1500

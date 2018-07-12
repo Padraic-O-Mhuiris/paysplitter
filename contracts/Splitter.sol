@@ -2,6 +2,8 @@ pragma solidity ^0.4.24;
 
 contract Splitter {
     
+    address public owner;
+    
     event SplitLog(
         address[] recipients,
         uint[] weights,
@@ -11,9 +13,13 @@ contract Splitter {
         uint spill,
         uint timestamp
     );
+
+    constructor() public {
+        owner = msg.sender;
+    }
     
-    function () public payable {
-        revert () ; 
+    function() public payable {
+        revert(); 
     }
     
     function splitEther(address[] recipients) public payable {
@@ -28,7 +34,7 @@ contract Splitter {
             msg.sender.transfer(spill);
         }
         uint[] memory nullArray; 
-        emit SplitLog(recipients, nullArray, msg.sender, msg.value, split_balance, spill, block.timestamp);
+        emit SplitLog(recipients, nullArray, msg.sender, msg.value, split_balance, spill, now);
     }
     
     function getWeightSum(uint[] weights) internal pure returns (uint) {
@@ -56,6 +62,6 @@ contract Splitter {
             msg.sender.transfer(spill);
         }
         
-        emit SplitLog(recipients, weights, msg.sender, msg.value, split_balance, spill, block.timestamp);
+        emit SplitLog(recipients, weights, msg.sender, msg.value, split_balance, spill, now);
     }
 }
