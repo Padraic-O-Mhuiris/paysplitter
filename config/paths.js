@@ -42,6 +42,5 @@ module.exports = {
   testsSetup: resolveApp('src/setupTests.js'),
   appNodeModules: resolveApp('node_modules'),
   ownNodeModules: resolveApp('node_modules'),
-  drizzleReact: resolveApp('node_modules/drizzle-react'),
   nodePaths: nodePaths
 };

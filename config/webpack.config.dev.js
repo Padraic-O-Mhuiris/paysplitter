@@ -124,7 +124,7 @@ module.exports = {
       // Process JS with Babel.
       {
         test: /\.(js|jsx)$/,
-        include: [ paths.appSrc, paths.drizzleReact ],
+        include: paths.appSrc,
         loader: 'babel',
         query: {
 
