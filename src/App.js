@@ -2,8 +2,21 @@ import React, { Component } from 'react'
 import getWeb3 from './utils/getWeb3'
 import './css/oswald.css'
 import './css/open-sans.css'
-import './css/pure-min.css'
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'
+
+import {
+  Navbar,
+  Container,
+  NavbarToggler,
+  NavbarBrand,
+  Nav,
+  NavItem,
+  NavLink,
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem } from 'reactstrap';
 
 // const Splitter = require("../build/contracts/Splitter.json")
 
@@ -46,12 +59,26 @@ class App extends Component {
   handleSubmit() {
     if(this.state.web3.utils.isAddress(this.state.address)) {
       var acc = this.state.accounts
-      acc.push(this.state.address)
-
-      this.setState({
-        accounts: acc,
-        address: "",
+      this.state.web3.eth.getBalance(this.state.address, (err, _balance) => {
+        if(err) {
+          console.log(err)
+        }
+        else {
+          var obj = {
+            address: this.state.address,
+            balance: _balance
+          }
+    
+          acc.push(obj)
+    
+          this.setState({
+            accounts: acc,
+            address: "",
+          })
+        }
       })
+
+      
     }
   }
 
@@ -81,8 +108,8 @@ class App extends Component {
   }
 
   fetchBalance() {
-    if(this.state.currentAccount != "") {
-      this.state.web3.eth.getBalance(accounts[0], (err, _balance) => {
+    if(this.state.currentAccount !== "") {
+      this.state.web3.eth.getBalance(this.state.currentAccount, (err, _balance) => {
         if(err) {
           console.log(err)
         }
@@ -106,11 +133,12 @@ class App extends Component {
   }
 
   render() {
+    console.log(this.state.accounts)
     return (
-      <div className="App">
-        <nav className="navbar pure-menu pure-menu-horizontal">
-            <a href="#" className="pure-menu-heading pure-menu-link">SplitEth</a>
-        </nav>
+      <Container>
+        <Navbar color="light" light expand="md">
+          <NavbarBrand href="#">SplitEth</NavbarBrand>
+        </Navbar>
 
         <main className="container">
           <div className="pure-g">
@@ -129,17 +157,28 @@ class App extends Component {
               <fieldset>
                 <input className="pure-input-2-3" type="text" value={this.state.address} onChange={this.handleAddress} placeholder="0x1234"/>
                 <a type="submit" className="pure-button pure-button-primary" onClick={this.handleSubmit}>Add Payee</a>
+
+                <br/>
+
+                <input className="pure-input-2-3" type="text" value={this.state.amount} onChange={this.handleAddress} placeholder="1 wei - 1^(10*-18) eth"/>
+                <a type="submit" className="pure-button pure-button-primary" onClick={this.handleSubmit}>Split Amount!</a>
               </fieldset>
             </form>
 
             </div>
             <div className="pure-u-1-3"></div>
           </div>
+          <div className="pure-g">
+            <div className="pure-u-1-6"></div>
+            <div className="pure-u-2-3">
 
-          
+
+            </div>
+            <div className="pure-u-1-6"></div>
+          </div>
 
         </main>
-      </div>
+      </Container>
     );
   }
 }
