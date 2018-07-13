@@ -56,7 +56,7 @@ class App extends Component {
   }
 
   fetchAccounts() {
-    if (this.props.web3 !== null) {
+    if (this.state.web3 !== null) {
       this.state.web3.eth.getAccounts((err, accounts) => {
         if (err) {
           console.log(err)
@@ -70,13 +70,8 @@ class App extends Component {
           } 
           else {
             if (accounts[0] !== this.state.account) {
-              this.state.web3.eth.getAccounts((err, accounts) => {
-                this.state.web3.eth.getBalance(accounts[0], (err, balance) => {
-                  this.setState({
-                    currentAccount: accounts[0],
-                    balance: balance
-                  })
-                }); 
+              this.setState({
+                currentAccount: accounts[0],
               })
             }
           }
@@ -85,10 +80,29 @@ class App extends Component {
     }
   }
 
+  fetchBalance() {
+    if(this.state.currentAccount != "") {
+      this.state.web3.eth.getBalance(accounts[0], (err, _balance) => {
+        if(err) {
+          console.log(err)
+        }
+        else {
+          if (_balance !== this.state.balance) {
+            this.setState({
+              balance: _balance,
+            })
+          }
+        }
+      })
+    }
+  }
+
   getCurrent() {
     let self = this;
     this.fetchAccounts()
+    this.fetchBalance()
     self.AccountInterval = setInterval(() => self.fetchAccounts(), 1000);
+    self.AccountInterval = setInterval(() => self.fetchBalance(), 1000);
   }
 
   render() {
