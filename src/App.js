@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import Tableux from './tableux'
 import getWeb3 from './utils/getWeb3'
 import './css/oswald.css'
 import './css/open-sans.css'
@@ -6,8 +7,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'
 
 import {
+  Alert,
   Navbar,
   Container,
+  Row,
+  Col,
   NavbarToggler,
   NavbarBrand,
   Nav,
@@ -16,7 +20,14 @@ import {
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
-  DropdownItem } from 'reactstrap';
+  DropdownItem,
+  Form,
+  FormGroup,
+  Label, 
+  Input, 
+  FormText,
+  Table,
+  Button } from 'reactstrap';
 
 // const Splitter = require("../build/contracts/Splitter.json")
 
@@ -28,12 +39,14 @@ class App extends Component {
       web3: null,
       split: null,
       address: "",
-      accounts: [],
+      name: "",
+      accounts: {},
       currentAccount: "",
       balance: "",
       network: ""
     }
-    this.handleAddress= this.handleAddress.bind(this);
+    this.handleAddress = this.handleAddress.bind(this);
+    this.handleName = this.handleName.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
@@ -50,40 +63,46 @@ class App extends Component {
     })
   }
 
+  handleName(event) {
+    this.setState({
+      name: event.target.value
+    })
+  }
+
   handleAddress(event) {
     this.setState({
-        address: event.target.value
+      address: event.target.value
     })  
   }
 
   handleSubmit() {
     if(this.state.web3.utils.isAddress(this.state.address)) {
-      var acc = this.state.accounts
       this.state.web3.eth.getBalance(this.state.address, (err, _balance) => {
         if(err) {
           console.log(err)
         }
         else {
-          var obj = {
+          var key = this.state.address
+          var subobj = {
+            name: this.state.name,
             address: this.state.address,
             balance: _balance
           }
-    
-          acc.push(obj)
-    
+          var obj = {...this.state.accounts}
+          obj[key] = subobj
+        
           this.setState({
-            accounts: acc,
+            accounts: obj,
             address: "",
+            name: ""
           })
         }
-      })
-
-      
+      })      
     }
   }
 
   fetchAccounts() {
-    if (this.state.web3 !== null) {
+    if (this.state.web3 !== null || this.state.currentAccount !== "locked") {
       this.state.web3.eth.getAccounts((err, accounts) => {
         if (err) {
           console.log(err)
@@ -108,7 +127,7 @@ class App extends Component {
   }
 
   fetchBalance() {
-    if(this.state.currentAccount !== "") {
+    if(this.state.currentAccount !== "" && this.state.balance !== "locked") {
       this.state.web3.eth.getBalance(this.state.currentAccount, (err, _balance) => {
         if(err) {
           console.log(err)
@@ -128,56 +147,61 @@ class App extends Component {
     let self = this;
     this.fetchAccounts()
     this.fetchBalance()
-    self.AccountInterval = setInterval(() => self.fetchAccounts(), 1000);
-    self.AccountInterval = setInterval(() => self.fetchBalance(), 1000);
+    self.AccountInterval = setInterval(() => self.fetchAccounts(), 500);
+    self.BalanceInterval = setInterval(() => self.fetchBalance(), 500);
   }
 
   render() {
-    console.log(this.state.accounts)
     return (
       <Container>
-        <Navbar color="light" light expand="md">
-          <NavbarBrand href="#">SplitEth</NavbarBrand>
-        </Navbar>
+        <Row>
+          <Col>
+          <Navbar color="primary" light expand="md">
 
-        <main className="container">
-          <div className="pure-g">
-            <div className="pure-u-1-3">
-            <br/>
+            <NavbarBrand href="#">
+                SplitEth
+            </NavbarBrand>
+
+          </Navbar>
+          </Col>
+        </Row>
+        
+        <br/>
+
+        <Row>
+          <Col>
             Current Account: {this.state.currentAccount}
-            <br/>
-            Balance: {this.state.balance}
-            <br/>
-            Network:
+          </Col>                  
+          <Col>
+            Balance: {this.state.balance} 
+          </Col>
+        </Row>
 
-            </div>
-            <div className="pure-u-1-3">
-            <br/>
-            <form className="pure-form">
-              <fieldset>
-                <input className="pure-input-2-3" type="text" value={this.state.address} onChange={this.handleAddress} placeholder="0x1234"/>
-                <a type="submit" className="pure-button pure-button-primary" onClick={this.handleSubmit}>Add Payee</a>
+        <br/>
 
-                <br/>
+        <Form inline>
+          <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
+            <Label htmlFor="i-address" className="mr-sm-5">Address:</Label>            
+            <Input type="text" value={this.state.address} onChange={this.handleAddress} id="i-address" placeholder="0x1234" />
+          </FormGroup>
+          
+          <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
+            <Label htmlFor="i-address" className="mr-sm-5">Name:</Label>            
+            <Input type="text" value={this.state.name} onChange={this.handleName} id="i-name" placeholder="0x1234" />
+          </FormGroup>
+          <Button color="primary" onClick={this.handleSubmit}>Submit</Button>
+        </Form>
 
-                <input className="pure-input-2-3" type="text" value={this.state.amount} onChange={this.handleAddress} placeholder="1 wei - 1^(10*-18) eth"/>
-                <a type="submit" className="pure-button pure-button-primary" onClick={this.handleSubmit}>Split Amount!</a>
-              </fieldset>
-            </form>
+        <br/>
 
-            </div>
-            <div className="pure-u-1-3"></div>
-          </div>
-          <div className="pure-g">
-            <div className="pure-u-1-6"></div>
-            <div className="pure-u-2-3">
+        <Tableux 
+          data={this.state.accounts} 
+          header={[
+            {name:"Address", prop:"address"},
+            {name:"Name", prop:"name"}, 
+            {name:"Balance", prop:"balance"}]} >
+        </Tableux>
 
-
-            </div>
-            <div className="pure-u-1-6"></div>
-          </div>
-
-        </main>
       </Container>
     );
   }
