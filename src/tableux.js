@@ -23,7 +23,6 @@ class Tableux extends Component {
   }
 
   render() {
-    console.log(Object.keys(this.props.data).map(key => this.props.data[key]))
     if(this.props.data.length != 0) {
       return (
         <Table dark hover borderless>

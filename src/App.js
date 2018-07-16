@@ -6,6 +6,8 @@ import './css/open-sans.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'
 
+const Splitter = require("../build/contracts/Splitter.json")
+
 import {
   Alert,
   Navbar,
@@ -43,7 +45,8 @@ class App extends Component {
       accounts: {},
       currentAccount: "",
       balance: "",
-      network: ""
+      network: "",
+      contract: null
     }
     this.handleAddress = this.handleAddress.bind(this)
     this.handleName = this.handleName.bind(this);
@@ -53,15 +56,24 @@ class App extends Component {
   }
 
   componentWillMount() {
-    getWeb3
-    .then(results => {
+
+    getWeb3.then(results => {
       this.setState({
         web3: results.web3
       })
       this.getCurrent()
+      this.instantiateContract()
     })
     .catch(() => {
       console.log('Error finding web3.')
+    })
+  }
+
+  instantiateContract() {
+    var contractAddress = Splitter.networks[Object.keys(Splitter.networks)[Object.keys(Splitter.networks).length - 1]].address
+    var splitterContract = new this.state.web3.eth.Contract(Splitter.abi, contractAddress);
+    this.setState({
+      contract: splitterContract
     })
   }
 
@@ -164,6 +176,7 @@ class App extends Component {
   }
 
   render() {
+    console.log(this.state.contract)
     return (
       <Container>
         <Row>
@@ -224,7 +237,7 @@ class App extends Component {
             </FormGroup>
             <Button color="success" onClick={this.handleSplit}>Split!</Button>
           </Form>) : 
-          (<div></div>)
+          (<div>{Splitter.networks[Object.keys(Splitter.networks)[Object.keys(Splitter.networks).length - 1]].address}</div>)
         }
 
       </Container>
