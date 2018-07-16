@@ -37,7 +37,7 @@ class App extends Component {
 
     this.state = {
       web3: null,
-      split: null,
+      amount: 0,
       address: "",
       name: "",
       accounts: {},
@@ -45,9 +45,11 @@ class App extends Component {
       balance: "",
       network: ""
     }
-    this.handleAddress = this.handleAddress.bind(this);
+    this.handleAddress = this.handleAddress.bind(this)
     this.handleName = this.handleName.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleAmount = this.handleAmount.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
+    this.handleSplit = this.handleSplit.bind(this)
   }
 
   componentWillMount() {
@@ -75,6 +77,12 @@ class App extends Component {
     })  
   }
 
+  handleAmount(event) {
+    this.setState({
+      amount: event.target.value
+    })
+  }
+
   handleSubmit() {
     if(this.state.web3.utils.isAddress(this.state.address)) {
       this.state.web3.eth.getBalance(this.state.address, (err, _balance) => {
@@ -99,6 +107,10 @@ class App extends Component {
         }
       })      
     }
+  }
+
+  handleSplit() {
+
   }
 
   fetchAccounts() {
@@ -201,6 +213,19 @@ class App extends Component {
             {name:"Name", prop:"name"}, 
             {name:"Balance", prop:"balance"}]} >
         </Tableux>
+
+        <br/>
+        
+        {Object.keys(this.state.accounts).length ?  
+          (<Form inline>
+            <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
+              <Label htmlFor="i-address" className="mr-sm-5">Total Amount to be split:</Label>            
+              <Input type="number" value={this.state.amount} onChange={this.handleAmount} id="i-amount" placeholder="1 wei = 1 * 10^-18 eth"/>
+            </FormGroup>
+            <Button color="success" onClick={this.handleSplit}>Split!</Button>
+          </Form>) : 
+          (<div></div>)
+        }
 
       </Container>
     );
