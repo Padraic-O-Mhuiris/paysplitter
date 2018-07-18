@@ -53,6 +53,7 @@ class App extends Component {
     this.handleAmount = this.handleAmount.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleSplit = this.handleSplit.bind(this)
+    this.deletePayee = this.deletePayee.bind(this)
   }
 
   componentWillMount() {
@@ -106,7 +107,8 @@ class App extends Component {
           var subobj = {
             name: this.state.name,
             address: this.state.address,
-            balance: _balance
+            balance: _balance,
+            remove: <Button color="danger" onClick={this.deletePayee.bind(this, this.state.address)}>Delete</Button>
           }
           var obj = {...this.state.accounts}
           obj[key] = subobj
@@ -134,8 +136,7 @@ class App extends Component {
         else {
           if (accounts.length === 0) {
             this.setState({
-              currentAccount: "locked",
-              balance: "locked"
+              currentAccount: "locked"
             })
           } 
           else {
@@ -151,7 +152,7 @@ class App extends Component {
   }
 
   fetchBalance() {
-    if(this.state.currentAccount !== "" && this.state.balance !== "locked") {
+    if(this.state.currentAccount !== "" && this.state.currentAccount !== "locked") {
       this.state.web3.eth.getBalance(this.state.currentAccount, (err, _balance) => {
         if(err) {
           console.log(err)
@@ -167,16 +168,24 @@ class App extends Component {
     }
   }
 
+  deletePayee(index) {
+    console.log(index)
+    var accs = {...this.state.accounts}
+    delete accs[index]
+    this.setState({
+      accounts: accs
+    })
+  }
+
   getCurrent() {
     let self = this;
     this.fetchAccounts()
-    this.fetchBalance()
     self.AccountInterval = setInterval(() => self.fetchAccounts(), 500);
     self.BalanceInterval = setInterval(() => self.fetchBalance(), 500);
   }
 
   render() {
-    console.log(this.state.contract)
+    console.log(this.state.accounts)
     return (
       <Container>
         <Row>
@@ -224,7 +233,8 @@ class App extends Component {
           header={[
             {name:"Address", prop:"address"},
             {name:"Name", prop:"name"}, 
-            {name:"Balance", prop:"balance"}]} >
+            {name:"Balance", prop:"balance"},
+            {name:"Delete", prop:"remove"}]} >
         </Tableux>
 
         <br/>
