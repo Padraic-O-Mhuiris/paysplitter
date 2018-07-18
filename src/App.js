@@ -31,8 +31,6 @@ import {
   Table,
   Button } from 'reactstrap';
 
-// const Splitter = require("../build/contracts/Splitter.json")
-
 class App extends Component {
   constructor(props) {
     super(props)
@@ -46,8 +44,11 @@ class App extends Component {
       currentAccount: "",
       balance: "",
       network: "",
-      contract: null
+      contract: null,
+      formName: "",
+      formWeight: ""
     }
+
     this.handleAddress = this.handleAddress.bind(this)
     this.handleName = this.handleName.bind(this);
     this.handleAmount = this.handleAmount.bind(this)
@@ -108,7 +109,10 @@ class App extends Component {
             name: this.state.name,
             address: this.state.address,
             balance: _balance,
-            remove: <Button color="danger" onClick={this.deletePayee.bind(this, this.state.address)}>Delete</Button>
+            weight: 1,
+            payout: 0,
+            remove: <Button color="danger" onClick={this.deletePayee.bind(this, this.state.address)}>Delete</Button>,
+            edit: <Button color="primary" onClick={this.editPayee.bind(this, this.state.address)}>Edit</Button>
           }
           var obj = {...this.state.accounts}
           obj[key] = subobj
@@ -168,13 +172,55 @@ class App extends Component {
     }
   }
 
-  deletePayee(index) {
-    console.log(index)
+  deletePayee(address) {
     var accs = {...this.state.accounts}
-    delete accs[index]
+    delete accs[address]
     this.setState({
       accounts: accs
     })
+  }
+
+  editPayee(address) {
+    var accs = {...this.state.accounts}
+
+    accs[address].name = <Input type="text" 
+      onChange={event => {
+        this.setState({
+          formName: event.target.value
+        })
+      }}
+
+      onKeyPress={event => {
+      if (event.key === 'Enter') {
+        var ac = {...this.state.accounts}
+        ac[address].name = this.state.formName
+        this.setState({
+          accounts: ac
+        })
+      }
+    }}/>
+
+    accs[address].weight = <Input type="number" 
+      onChange={event => {
+        this.setState({
+          formWeight: event.target.value
+        })
+      }}
+      
+      onKeyPress={event => {
+      if (event.key === 'Enter') {
+        var ac = {...this.state.accounts}
+        ac[address].weight = this.state.formWeight
+        this.setState({
+          accounts: ac
+        })
+      }
+    }}/>
+
+    this.setState({
+      accounts: accs
+    })
+
   }
 
   getCurrent() {
@@ -221,7 +267,7 @@ class App extends Component {
           
           <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
             <Label htmlFor="i-address" className="mr-sm-5">Name:</Label>            
-            <Input type="text" value={this.state.name} onChange={this.handleName} id="i-name" placeholder="0x1234" />
+            <Input type="text" value={this.state.name} onChange={this.handleName} id="i-name"/>
           </FormGroup>
           <Button color="primary" onClick={this.handleSubmit}>Submit</Button>
         </Form>
@@ -234,7 +280,10 @@ class App extends Component {
             {name:"Address", prop:"address"},
             {name:"Name", prop:"name"}, 
             {name:"Balance", prop:"balance"},
-            {name:"Delete", prop:"remove"}]} >
+            {name:"Weight", prop:"weight"},
+            {name:"Payout", prop:"payout"},
+            {name:"Delete", prop:"remove"},
+            {name:"Edit", prop:"edit"}]} >
         </Tableux>
 
         <br/>
