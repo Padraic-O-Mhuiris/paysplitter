@@ -44,6 +44,7 @@ class App extends Component {
       currentAccount: "",
       balance: "",
       network: "",
+      refund: 0,
       contract: null,
       formName: "",
       formWeight: ""
@@ -293,6 +294,10 @@ class App extends Component {
             <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
               <Label htmlFor="i-address" className="mr-sm-5">Total Amount to be split:</Label>            
               <Input type="number" value={this.state.amount} onChange={this.handleAmount} id="i-amount" placeholder="1 wei = 1 * 10^-18 eth"/>
+            </FormGroup>
+            <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
+              <Label htmlFor="i-address" className="mr-sm-5">Amount Returned:</Label>            
+              <Input type="number" value={this.state.amount} readOnly/>
             </FormGroup>
             <Button color="success" onClick={this.handleSplit}>Split!</Button>
           </Form>) : 
