@@ -93,8 +93,15 @@ class App extends Component {
   }
 
   handleAmount(event) {
+    var _amount = event.target.value
+    var accs = {...this.state.accounts}
+    var totalWeight = Object.keys(this.state.accounts).reduce(function (accumulator, currentValue) {
+      return accumulator + accs[currentValue].weight;
+    },0)
+    
+    console.log(totalWeight)
     this.setState({
-      amount: event.target.value
+      amount: _amount
     })
   }
 
@@ -211,7 +218,7 @@ class App extends Component {
       onKeyPress={event => {
       if (event.key === 'Enter') {
         var ac = {...this.state.accounts}
-        ac[address].weight = this.state.formWeight
+        ac[address].weight = parseInt(this.state.formWeight, 10)
         this.setState({
           accounts: ac
         })
@@ -232,7 +239,6 @@ class App extends Component {
   }
 
   render() {
-    console.log(this.state.accounts)
     return (
       <Container>
         <Row>
@@ -297,7 +303,7 @@ class App extends Component {
             </FormGroup>
             <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
               <Label htmlFor="i-address" className="mr-sm-5">Amount Returned:</Label>            
-              <Input type="number" value={this.state.amount} readOnly/>
+              <Input type="number" value={this.state.refund} readOnly/>
             </FormGroup>
             <Button color="success" onClick={this.handleSplit}>Split!</Button>
           </Form>) : 
