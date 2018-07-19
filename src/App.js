@@ -59,7 +59,6 @@ class App extends Component {
   }
 
   componentWillMount() {
-
     getWeb3.then(results => {
       this.setState({
         web3: results.web3
@@ -93,16 +92,31 @@ class App extends Component {
   }
 
   handleAmount(event) {
-    var _amount = event.target.value
-    var accs = {...this.state.accounts}
-    var totalWeight = Object.keys(this.state.accounts).reduce(function (accumulator, currentValue) {
-      return accumulator + accs[currentValue].weight;
-    },0)
-    
-    console.log(totalWeight)
-    this.setState({
-      amount: _amount
-    })
+    if(!isNaN(event.target.value) || parseInt(event.target.value, 10) >= 0 || event.target.value === "") {
+      var _amount = parseInt(event.target.value, 10)
+      var accs = {...this.state.accounts}
+
+      var totalWeight = Object.keys(this.state.accounts).reduce(function (accumulator, currentValue) {
+        return accumulator + accs[currentValue].weight;
+      },0)
+      
+      var spill = _amount % totalWeight
+      var transferable_balance = _amount - spill
+
+      console.log(spill + " " + transferable_balance)
+      Object.keys(this.state.accounts).forEach(function (key) {
+        accs[key].payout = (transferable_balance * accs[key].weight / totalWeight) 
+        if(isNaN(accs[key].payout)) {
+          accs[key].payout = 0
+        }
+      })
+
+      this.setState({
+        amount: _amount,
+        accounts: accs,
+        refund: spill
+      })
+    }
   }
 
   handleSubmit() {
@@ -136,7 +150,20 @@ class App extends Component {
   }
 
   handleSplit() {
-
+    this.state.contract.methods.splitEther(
+      Object.keys(this.state.accounts)
+    ).send({from: this.state.currentAccount, value:this.state.amount}
+    ).on('transactionHash', function(hash){
+        console.log("Hash:")
+        console.log(hash)
+    })
+    .on('receipt', function(receipt){
+        console.log("Receipt:")
+        console.log(receipt)
+    })
+    .on('confirmation', async function(confirmationNumber, receipt){
+      console.log(confirmationNumber, receipt)
+    })
   }
 
   fetchAccounts() {
@@ -218,7 +245,12 @@ class App extends Component {
       onKeyPress={event => {
       if (event.key === 'Enter') {
         var ac = {...this.state.accounts}
-        ac[address].weight = parseInt(this.state.formWeight, 10)
+        if(ac.length > 1) {
+          ac[address].weight = parseInt(this.state.formWeight, 10)
+        } else {
+          ac[address].weight = 1
+        }
+
         this.setState({
           accounts: ac
         })
