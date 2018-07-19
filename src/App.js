@@ -207,6 +207,28 @@ class App extends Component {
     }
   }
 
+  fetchAllBalances() {
+    var aKeys = Object.keys(this.state.accounts)
+    var accs = {...this.state.accounts}
+    if(aKeys.length > 0) {
+      for(let address of aKeys) {
+        this.state.web3.eth.getBalance(address, (err, _balance) => {
+          if(err) {
+            console.log(err)
+          }
+          else {
+            if (_balance !== accs[address].balance) {
+              accs[address].balance = _balance
+            }
+          }
+        })
+      }
+      this.setState({
+        accounts: accs
+      })
+    }
+  }
+
   deletePayee(address) {
     var accs = {...this.state.accounts}
     delete accs[address]
@@ -268,6 +290,7 @@ class App extends Component {
     this.fetchAccounts()
     self.AccountInterval = setInterval(() => self.fetchAccounts(), 500);
     self.BalanceInterval = setInterval(() => self.fetchBalance(), 500);
+    self.AllBalanceInterval = setInterval(() => self.fetchAllBalances(), 2000)
   }
 
   render() {
