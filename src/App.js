@@ -110,9 +110,7 @@ class App extends Component {
       var _amount = parseInt(event.target.value, 10)
       var accs = {...this.state.accounts}
 
-      var totalWeight = Object.keys(this.state.accounts).reduce(function (accumulator, currentValue) {
-        return accumulator + accs[currentValue].share;
-      },0)
+      var totalWeight = this.getTotalWeight(this.state.accounts)
       
       var spill = _amount % totalWeight
       var transferable_balance = _amount - spill
@@ -271,7 +269,13 @@ class App extends Component {
     element.click();
 
     document.body.removeChild(element);
-}
+  }
+
+  getTotalWeight(accounts) {
+    return Object.keys(accounts).reduce(function (accumulator, currentValue) {
+      return accumulator + accounts[currentValue].share;
+    },0)
+  }
 
   deletePayee(address) {
     var accs = {...this.state.accounts}
