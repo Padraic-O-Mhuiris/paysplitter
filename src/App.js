@@ -169,10 +169,12 @@ class App extends Component {
   fetchAccounts() {
     if (this.state.web3 !== null || this.state.currentAccount !== "locked") {
       this.state.web3.eth.getAccounts((err, accounts) => {
+
         if (err) {
           console.log(err)
         } 
         else {
+
           if (accounts.length === 0) {
             this.setState({
               currentAccount: "locked"
@@ -186,8 +188,8 @@ class App extends Component {
             }
           }
         }
-      });
-    }
+      })
+    } 
   }
 
   fetchBalance() {
@@ -351,19 +353,37 @@ class App extends Component {
         <br/>
         
         {Object.keys(this.state.accounts).length ?  
-          (<Form inline>
-            <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
-              <Label htmlFor="i-address" className="mr-sm-5">Total Amount to be split:</Label>            
-              <Input type="number" value={this.state.amount} onChange={this.handleAmount} id="i-amount" placeholder="1 wei = 1 * 10^-18 eth"/>
-            </FormGroup>
-            <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
-              <Label htmlFor="i-address" className="mr-sm-5">Amount Returned:</Label>            
-              <Input type="number" value={this.state.refund} readOnly/>
-            </FormGroup>
-            <Button color="success" onClick={this.handleSplit}>Split!</Button>
-          </Form>) : 
+          (
+          <Container>
+            <Row>
+              <Form inline>
+                <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
+                  <Label htmlFor="i-address" className="mr-sm-5">Total Amount to be split:</Label>            
+                  <Input type="number" value={this.state.amount} onChange={this.handleAmount} id="i-amount" placeholder="1 wei = 1 * 10^-18 eth"/>
+                </FormGroup>
+                <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
+                  <Label htmlFor="i-address" className="mr-sm-5">Amount Returned:</Label>            
+                  <Input type="number" value={this.state.refund} readOnly/>
+                </FormGroup>
+                <Button color="success" onClick={this.handleSplit}>Split!</Button>
+              </Form>
+            </Row>
+            <br/>
+            <Row>
+              <Col><Button color="primary">Export file</Button></Col>
+              <Col><Button color="secondary">Import file</Button></Col>
+              <Col></Col>
+              <Col></Col>
+              <Col></Col>
+              <Col></Col>
+              <Col></Col>
+            </Row>
+          </Container>
+          )
+          : 
           (<div>{Splitter.networks[Object.keys(Splitter.networks)[Object.keys(Splitter.networks).length - 1]].address}</div>)
         }
+
 
       </Container>
     );
