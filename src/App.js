@@ -116,7 +116,7 @@ class App extends Component {
       var transferable_balance = _amount - spill
 
       Object.keys(this.state.accounts).forEach(function (key) {
-        accs[key].payout = (transferable_balance * accs[key].share / totalWeight) 
+        accs[key].payout = (transferable_balance * accs[key].weight / totalWeight) 
         if(isNaN(accs[key].payout)) {
           accs[key].payout = 0
         }
@@ -148,7 +148,8 @@ class App extends Component {
             name: this.state.name,
             address: this.state.address,
             balance: _balance,
-            share: 1,
+            weight: 1,
+            share: "",
             payout: 0,
             remove: <Button color="danger" onClick={this.deletePayee.bind(this, this.state.address)}>Delete</Button>,
             edit: <Button color="primary" onClick={this.editPayee.bind(this, this.state.address)}>Edit</Button>
@@ -156,6 +157,11 @@ class App extends Component {
           var obj = {...this.state.accounts}
           obj[key] = subobj
         
+          var tw = this.getTotalWeight(obj)
+
+          for(let address of Object.keys(obj)) {
+            obj[address].share = obj[address].weight + "/" + tw
+          }
           this.setState({
             accounts: obj,
             address: "",
@@ -253,6 +259,7 @@ class App extends Component {
     for(let address of keys) {
       var nObj = obj[address]
       delete nObj["balance"]
+      delete nObj["share"]
       delete nObj["payout"]
       delete nObj["remove"]
       delete nObj["edit"]
@@ -273,13 +280,20 @@ class App extends Component {
 
   getTotalWeight(accounts) {
     return Object.keys(accounts).reduce(function (accumulator, currentValue) {
-      return accumulator + accounts[currentValue].share;
+      return accumulator + accounts[currentValue].weight;
     },0)
   }
 
   deletePayee(address) {
     var accs = {...this.state.accounts}
     delete accs[address]
+
+    var tw = this.getTotalWeight(accs)
+
+    for(let address of Object.keys(accs)) {
+      accs[address].share = accs[address].weight + "/" + tw
+    }
+
     this.setState({
       accounts: accs
     })
@@ -315,12 +329,18 @@ class App extends Component {
       onKeyPress={event => {
       if (event.key === 'Enter') {
         var ac = {...this.state.accounts}
-        console.log(this.state.accounts)
         if(Object.keys(ac).length > 1) {
-          ac[address].share = parseInt(this.state.formShare, 10)
+          ac[address].weight = parseInt(this.state.formShare, 10)
         } else {
-          ac[address].share = 1
+          ac[address].weight = 1
         }
+
+        var tw = this.getTotalWeight(this.state.accounts)
+
+        for(let address of Object.keys(ac)) {
+          ac[address].share = ac[address].weight + "/" + tw
+        }
+
         this.setState({
           accounts: ac
         })
