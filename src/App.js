@@ -254,6 +254,7 @@ class App extends Component {
 
     for(let address of keys) {
       var nObj = obj[address]
+      delete nObj["balance"]
       delete nObj["payout"]
       delete nObj["remove"]
       delete nObj["edit"]
@@ -414,8 +415,6 @@ class App extends Component {
               <Col><Input type="text" value={this.state.fileName} onChange={this.handleFileName} id="i-filename" placeholder="file.json" /></Col>
               <Col><Button color="primary" onClick={this.exportToJson}>Export file</Button></Col>
               <Col><Button color="secondary">Import file</Button></Col>
-              <Col></Col>
-              <Col></Col>
             </Row>
           </Container>
           )
