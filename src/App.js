@@ -4,6 +4,7 @@ import getWeb3 from './utils/getWeb3'
 import './css/oswald.css'
 import './css/open-sans.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
+import cloneDeep from 'lodash/cloneDeep';
 import './App.css'
 
 const Splitter = require("../build/contracts/Splitter.json")
@@ -47,7 +48,8 @@ class App extends Component {
       refund: 0,
       contract: null,
       formName: "",
-      formWeight: ""
+      formWeight: "",
+      fileName: ""
     }
 
     this.handleAddress = this.handleAddress.bind(this)
@@ -56,6 +58,8 @@ class App extends Component {
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleSplit = this.handleSplit.bind(this)
     this.deletePayee = this.deletePayee.bind(this)
+    this.exportToJson = this.exportToJson.bind(this)
+    this.handleFileName = this.handleFileName.bind(this)
   }
 
   componentWillMount() {
@@ -113,7 +117,6 @@ class App extends Component {
       var spill = _amount % totalWeight
       var transferable_balance = _amount - spill
 
-      console.log(spill + " " + transferable_balance)
       Object.keys(this.state.accounts).forEach(function (key) {
         accs[key].payout = (transferable_balance * accs[key].weight / totalWeight) 
         if(isNaN(accs[key].payout)) {
@@ -127,6 +130,12 @@ class App extends Component {
         refund: spill
       })
     }
+  }
+
+  handleFileName(event) {
+    this.setState({
+      fileName: event.target.value
+    })
   }
 
   handleSubmit() {
@@ -238,6 +247,30 @@ class App extends Component {
       })
     }
   }
+
+  exportToJson() {
+    var keys = Object.keys(this.state.accounts)
+    var obj = cloneDeep(this.state.accounts)
+
+    for(let address of keys) {
+      var nObj = obj[address]
+      delete nObj["payout"]
+      delete nObj["remove"]
+      delete nObj["edit"]
+      obj[address] = {...nObj}
+    }
+
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(obj, null, 2)));
+    element.setAttribute('download', this.state.fileName + ".json");
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+}
 
   deletePayee(address) {
     var accs = {...this.state.accounts}
@@ -378,11 +411,9 @@ class App extends Component {
             </Row>
             <br/>
             <Row>
-              <Col><Button color="primary">Export file</Button></Col>
+              <Col><Input type="text" value={this.state.fileName} onChange={this.handleFileName} id="i-filename" placeholder="file.json" /></Col>
+              <Col><Button color="primary" onClick={this.exportToJson}>Export file</Button></Col>
               <Col><Button color="secondary">Import file</Button></Col>
-              <Col></Col>
-              <Col></Col>
-              <Col></Col>
               <Col></Col>
               <Col></Col>
             </Row>
@@ -391,8 +422,6 @@ class App extends Component {
           : 
           (<div>{Splitter.networks[Object.keys(Splitter.networks)[Object.keys(Splitter.networks).length - 1]].address}</div>)
         }
-
-
       </Container>
     );
   }
