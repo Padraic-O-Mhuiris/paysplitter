@@ -48,7 +48,7 @@ class App extends Component {
       refund: 0,
       contract: null,
       formName: "",
-      formWeight: "",
+      formShare: null,
       fileName: ""
     }
 
@@ -111,14 +111,14 @@ class App extends Component {
       var accs = {...this.state.accounts}
 
       var totalWeight = Object.keys(this.state.accounts).reduce(function (accumulator, currentValue) {
-        return accumulator + accs[currentValue].weight;
+        return accumulator + accs[currentValue].share;
       },0)
       
       var spill = _amount % totalWeight
       var transferable_balance = _amount - spill
 
       Object.keys(this.state.accounts).forEach(function (key) {
-        accs[key].payout = (transferable_balance * accs[key].weight / totalWeight) 
+        accs[key].payout = (transferable_balance * accs[key].share / totalWeight) 
         if(isNaN(accs[key].payout)) {
           accs[key].payout = 0
         }
@@ -150,7 +150,7 @@ class App extends Component {
             name: this.state.name,
             address: this.state.address,
             balance: _balance,
-            weight: 1,
+            share: 1,
             payout: 0,
             remove: <Button color="danger" onClick={this.deletePayee.bind(this, this.state.address)}>Delete</Button>,
             edit: <Button color="primary" onClick={this.editPayee.bind(this, this.state.address)}>Edit</Button>
@@ -301,32 +301,27 @@ class App extends Component {
       }
     }}/>
 
-    accs[address].weight = <Input type="number" 
+    accs[address].share = <Input type="number" 
       onChange={event => {
         this.setState({
-          formWeight: event.target.value
+          formShare: event.target.value
         })
       }}
       
       onKeyPress={event => {
       if (event.key === 'Enter') {
         var ac = {...this.state.accounts}
-        if(ac.length > 1) {
-          ac[address].weight = parseInt(this.state.formWeight, 10)
+        console.log(this.state.accounts)
+        if(Object.keys(ac).length > 1) {
+          ac[address].share = parseInt(this.state.formShare, 10)
         } else {
-          ac[address].weight = 1
+          ac[address].share = 1
         }
-
         this.setState({
           accounts: ac
         })
       }
     }}/>
-
-    this.setState({
-      accounts: accs
-    })
-
   }
 
   getCurrent() {
@@ -359,7 +354,7 @@ class App extends Component {
             Current Account: {this.state.currentAccount}
           </Col>                  
           <Col>
-            Balance: {this.state.balance} 
+            Balance: {this.state.balance} wei
           </Col>
         </Row>
 
@@ -386,7 +381,7 @@ class App extends Component {
             {name:"Address", prop:"address"},
             {name:"Name", prop:"name"}, 
             {name:"Balance", prop:"balance"},
-            {name:"Weight", prop:"weight"},
+            {name:"Share", prop:"share"},
             {name:"Payout", prop:"payout"},
             {name:"Delete", prop:"remove"},
             {name:"Edit", prop:"edit"}]} >
