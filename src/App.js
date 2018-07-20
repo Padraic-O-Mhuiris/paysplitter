@@ -69,7 +69,6 @@ class App extends Component {
       })
       this.getCurrent()
       this.instantiateContract()
-      this.setup()
     })
     .catch(() => {
       console.log('Error finding web3.')
@@ -82,15 +81,6 @@ class App extends Component {
     this.setState({
       contract: splitterContract
     })
-  }
-
-  setup() {
-    this.setState({
-      name: "example",
-      address: "0xBf54FE90B263788f960deB0479972C4fc33b171e"
-    })
-
-    this.handleSubmit()
   }
 
   handleName(event) {
