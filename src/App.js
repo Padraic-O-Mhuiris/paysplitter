@@ -414,7 +414,14 @@ class App extends Component {
             <Row>
               <Col><Input type="text" value={this.state.fileName} onChange={this.handleFileName} id="i-filename" placeholder="file.json" /></Col>
               <Col><Button color="primary" onClick={this.exportToJson}>Export file</Button></Col>
-              <Col><Button color="secondary">Import file</Button></Col>
+              <Col>
+                <Row>
+                  <Col></Col>
+                  <Col></Col>
+                  <Col><Button color="secondary">Import file</Button></Col>
+                  <Col><Button color="secondary">Import receipt</Button></Col>
+                </Row>
+              </Col>
             </Row>
           </Container>
           )
