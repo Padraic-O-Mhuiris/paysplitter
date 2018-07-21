@@ -48,8 +48,23 @@ const extData = {
     "address": "0x3FA993989f890AE8113542Ccf329aAE036c3D975",
     "weight": 1
   },
-
 }
+
+const readUploadedFileAsText = (inputFile) => {
+  const temporaryFileReader = new FileReader();
+
+  return new Promise((resolve, reject) => {
+    temporaryFileReader.onerror = () => {
+      temporaryFileReader.abort();
+      reject(new DOMException("Problem parsing input file."));
+    };
+
+    temporaryFileReader.onload = () => {
+      resolve(temporaryFileReader.result);
+    };
+    temporaryFileReader.readAsText(inputFile);
+  });
+};
 
 class App extends Component {
   constructor(props) {
@@ -79,6 +94,7 @@ class App extends Component {
     this.deletePayee = this.deletePayee.bind(this)
     this.exportToJson = this.exportToJson.bind(this)
     this.handleFileName = this.handleFileName.bind(this)
+    this.handleUploadedFileName = this.handleUploadedFileName.bind(this)
   }
 
   componentWillMount() {
@@ -146,6 +162,13 @@ class App extends Component {
     })
   }
 
+  async handleUploadedFileName(event) {
+    var files = event.target.files
+    var fileContents = await readUploadedFileAsText(files[0])
+    var obj = JSON.parse(fileContents)
+    this.importFromJson(obj)
+  }
+
   handleSubmit() {
     if(this.state.web3.utils.isAddress(this.state.address)) {
       this.state.web3.eth.getBalance(this.state.address, (err, _balance) => {
@@ -170,7 +193,7 @@ class App extends Component {
           var tw = this.getTotalWeight(obj)
 
           for(let address of Object.keys(obj)) {
-            obj[address].share = obj[address].weight + "/" + tw
+            obj[address].share = obj[address].weight + " : " + tw
           }
           this.setState({
             accounts: obj,
@@ -293,7 +316,7 @@ class App extends Component {
     var tw = this.getTotalWeight(data)
 
     for(let address of keys) {
-      data[address].share = data[address].weight + "/" + tw
+      data[address].share = data[address].weight + " : " + tw
       data[address].payout = 0
       data[address].remove = <Button color="danger" onClick={this.deletePayee.bind(this, address)}>Delete</Button>
       data[address].edit = <Button color="primary" onClick={this.editPayee.bind(this, address)}>Edit</Button>
@@ -317,7 +340,7 @@ class App extends Component {
     var tw = this.getTotalWeight(accs)
 
     for(let address of Object.keys(accs)) {
-      accs[address].share = accs[address].weight + "/" + tw
+      accs[address].share = accs[address].weight + " : " + tw
     }
 
     this.setState({
@@ -347,9 +370,18 @@ class App extends Component {
 
     accs[address].share = <Input type="number" 
       onChange={event => {
-        this.setState({
-          formShare: event.target.value
-        })
+        if(parseInt(event.target.value, 10)) { 
+          var tw = this.getTotalWeight(this.state.accounts) + parseInt(event.target.value, 10) - accs[address].weight
+          for(let _address of Object.keys(accs)) {
+            if(address != _address) {
+              accs[_address].share = accs[_address].weight + " : " + tw
+            }
+          }
+          this.setState({
+            formShare: event.target.value,
+            accounts: accs
+          })
+        }
       }}
       
       onKeyPress={event => {
@@ -364,7 +396,7 @@ class App extends Component {
         var tw = this.getTotalWeight(this.state.accounts)
 
         for(let address of Object.keys(ac)) {
-          ac[address].share = ac[address].weight + "/" + tw
+          ac[address].share = ac[address].weight + " : " + tw
         }
 
         this.setState({
@@ -464,12 +496,13 @@ class App extends Component {
                   <Col></Col>
                   <Col>
                     <input 
-                      ref={fileInput => this.fileInput = fileInput} 
+                      ref={input => this.inputElement = input}
                       type="file"
+                      onChange={this.handleUploadedFileName}
                       style={{display:"none"}}
                     />
                   </Col>
-                  <Col><Button type="file" id="exampleFile" color="secondary">Import file</Button></Col>
+                  <Col><Button onClick={() => this.inputElement.click()} color="secondary">Import file</Button></Col>
                   <Col><Button color="secondary">Import receipt</Button></Col>
                 </Row>
               </Col>
