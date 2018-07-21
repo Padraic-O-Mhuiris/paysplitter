@@ -32,6 +32,25 @@ import {
   Table,
   Button } from 'reactstrap';
 
+const extData = {
+  "0xBf54FE90B263788f960deB0479972C4fc33b171e": {
+    "name": "example",
+    "address": "0xBf54FE90B263788f960deB0479972C4fc33b171e",
+    "weight": 1
+  },
+  "0x71deDfdcE3EcF4b3b19740cF57a79167b05f60ac": {
+    "name": "s",
+    "address": "0x71deDfdcE3EcF4b3b19740cF57a79167b05f60ac",
+    "weight": 1
+  },
+  "0x3FA993989f890AE8113542Ccf329aAE036c3D975": {
+    "name": "s",
+    "address": "0x3FA993989f890AE8113542Ccf329aAE036c3D975",
+    "weight": 1
+  },
+
+}
+
 class App extends Component {
   constructor(props) {
     super(props)
@@ -69,6 +88,7 @@ class App extends Component {
       })
       this.getCurrent()
       this.instantiateContract()
+      this.importFromJson(extData)
     })
     .catch(() => {
       console.log('Error finding web3.')
@@ -268,6 +288,22 @@ class App extends Component {
     document.body.removeChild(element);
   }
 
+  importFromJson(data) {
+    var keys = Object.keys(data)
+    var tw = this.getTotalWeight(data)
+
+    for(let address of keys) {
+      data[address].share = data[address].weight + "/" + tw
+      data[address].payout = 0
+      data[address].remove = <Button color="danger" onClick={this.deletePayee.bind(this, address)}>Delete</Button>
+      data[address].edit = <Button color="primary" onClick={this.editPayee.bind(this, address)}>Edit</Button>
+    }      
+
+    this.setState({
+      accounts: data
+    })
+  }
+  
   getTotalWeight(accounts) {
     return Object.keys(accounts).reduce(function (accumulator, currentValue) {
       return accumulator + accounts[currentValue].weight;
@@ -426,8 +462,14 @@ class App extends Component {
               <Col>
                 <Row>
                   <Col></Col>
-                  <Col></Col>
-                  <Col><Button color="secondary">Import file</Button></Col>
+                  <Col>
+                    <input 
+                      ref={fileInput => this.fileInput = fileInput} 
+                      type="file"
+                      style={{display:"none"}}
+                    />
+                  </Col>
+                  <Col><Button type="file" id="exampleFile" color="secondary">Import file</Button></Col>
                   <Col><Button color="secondary">Import receipt</Button></Col>
                 </Row>
               </Col>
