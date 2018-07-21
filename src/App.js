@@ -206,20 +206,50 @@ class App extends Component {
   }
 
   handleSplit() {
-    this.state.contract.methods.splitEther(
-      Object.keys(this.state.accounts)
-    ).send({from: this.state.currentAccount, value:this.state.amount}
-    ).on('transactionHash', function(hash){
-        console.log("Hash:")
-        console.log(hash)
-    })
-    .on('receipt', function(receipt){
-        console.log("Receipt:")
-        console.log(receipt)
-    })
-    .on('confirmation', async function(confirmationNumber, receipt){
-      console.log(confirmationNumber, receipt)
-    })
+    
+    var tw = this.getTotalWeight(this.state.accounts)
+
+    if(Object.keys(this.state.accounts).length === tw) {
+      console.log("Split equal")
+      this.state.contract.methods.splitEther(
+        Object.keys(this.state.accounts)
+      ).send({from: this.state.currentAccount, value:this.state.amount}
+      ).on('transactionHash', function(hash){
+          console.log("Hash:")
+          console.log(hash)
+      })
+      .on('receipt', function(receipt){
+          console.log("Receipt:")
+          console.log(receipt)
+      })
+      .on('confirmation', async function(confirmationNumber, receipt){
+        console.log(confirmationNumber, receipt)
+      })
+    } else {
+      console.log("Split weighted")
+
+      var arr = []
+
+      for(let address of Object.keys(this.state.accounts)) {
+        arr.push(this.state.accounts[address].weight)
+      }
+
+      this.state.contract.methods.splitEtherWeighted(
+        Object.keys(this.state.accounts),
+        arr
+      ).send({from: this.state.currentAccount, value:this.state.amount}
+      ).on('transactionHash', function(hash){
+          console.log("Hash:")
+          console.log(hash)
+      })
+      .on('receipt', function(receipt){
+          console.log("Receipt:")
+          console.log(receipt)
+      })
+      .on('confirmation', async function(confirmationNumber, receipt){
+        console.log(confirmationNumber, receipt)
+      })
+    }
   }
 
   fetchAccounts() {
@@ -510,7 +540,25 @@ class App extends Component {
           </Container>
           )
           : 
-          (<div>{Splitter.networks[Object.keys(Splitter.networks)[Object.keys(Splitter.networks).length - 1]].address}</div>)
+          (<Row>
+              <Col></Col>
+              <Col></Col>
+              <Col>
+                <Row>
+                  <Col></Col>
+                  <Col>
+                    <input 
+                      ref={input => this.inputElement = input}
+                      type="file"
+                      onChange={this.handleUploadedFileName}
+                      style={{display:"none"}}
+                    />
+                  </Col>
+                  <Col><Button onClick={() => this.inputElement.click()} color="secondary">Import file</Button></Col>
+                  <Col><Button color="secondary">Import receipt</Button></Col>
+                </Row>
+              </Col>
+            </Row>)
         }
       </Container>
     );
