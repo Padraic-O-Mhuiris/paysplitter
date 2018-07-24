@@ -450,22 +450,20 @@ class App extends Component {
             <NavbarBrand href="#">
                 SplitEth
             </NavbarBrand>
-
+            <Nav className="ml-auto" navbar>
+              <NavItem>
+                <NavLink>{this.state.currentAccount}</NavLink>
+              </NavItem>
+              <NavItem>
+              </NavItem>
+              <NavItem>
+                <NavLink>{this.state.balance} wei</NavLink>
+              </NavItem>
+            </Nav>
           </Navbar>
           </Col>
         </Row>
         
-        <br/>
-
-        <Row>
-          <Col>
-            Current Account: {this.state.currentAccount}
-          </Col>                  
-          <Col>
-            Balance: {this.state.balance} wei
-          </Col>
-        </Row>
-
         <br/>
 
         <Form inline>
