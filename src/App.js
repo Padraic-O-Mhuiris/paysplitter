@@ -6,6 +6,9 @@ import './css/open-sans.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import cloneDeep from 'lodash/cloneDeep';
 import './App.css'
+import Web3 from 'web3';
+import {VortexGate, VortexWeb3Loaded, VortexWeb3LoadError, VortexWeb3NetworkError, VortexWeb3Loading, VortexWeb3Locked, VortexMetamaskLoader} from "vort_x-components";
+
 
 const Proceeds = require("../build/contracts/Proceeds.json")
 
@@ -442,119 +445,206 @@ class App extends Component {
 
   render() {
     return (
-      <Container>
-        <Row>
-          <Col>
-          <Navbar color="primary" light expand="md">
+      <VortexGate
+        contracts={{
+          type: 'truffle',
+          truffle_contracts: [Proceeds],
+          preloaded_contracts: ["Proceeds"],
+          network_contracts: [Proceeds]
+        }}
 
-            <NavbarBrand href="#">
-                SplitEth
-            </NavbarBrand>
-            <Nav className="ml-auto" navbar>
-              <NavItem>
-                <NavLink>{this.state.currentAccount}</NavLink>
-              </NavItem>
-              <NavItem>
-              </NavItem>
-              <NavItem>
-                <NavLink>{this.state.balance} wei</NavLink>
-              </NavItem>
-            </Nav>
-          </Navbar>
-          </Col>
-        </Row>
+        loader={VortexMetamaskLoader(Web3)}
+
+        ipfs_config={{
+          host: 'ipfs.infura.io',
+          port: '5001',
+          options: {
+              protocol: 'https'
+          }
+        }}
+
+        backlink_config={{
+            url: {
+                "mainnet": "wss://mainnet.infura.io/ws",
+                "default": "ws://localhost:8545/ws"
+            }
+        }}>
         
-        <br/>
-
-        <Form inline>
-          <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
-            <Label htmlFor="i-address" className="mr-sm-5">Address:</Label>            
-            <Input type="text" value={this.state.address} onChange={this.handleAddress} id="i-address" placeholder="0x1234" />
-          </FormGroup>
-          
-          <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
-            <Label htmlFor="i-address" className="mr-sm-5">Name:</Label>            
-            <Input type="text" value={this.state.name} onChange={this.handleName} id="i-name"/>
-          </FormGroup>
-          <Button color="primary" onClick={this.handleSubmit}>Submit</Button>
-        </Form>
-
-        <br/>
-
-        <Tableux 
-          data={this.state.accounts} 
-          header={[
-            {name:"Address", prop:"address"},
-            {name:"Name", prop:"name"}, 
-            {name:"Balance", prop:"balance"},
-            {name:"Share", prop:"share"},
-            {name:"Payout", prop:"payout"},
-            {name:"Delete", prop:"remove"},
-            {name:"Edit", prop:"edit"}]} >
-        </Tableux>
-
-        <br/>
-        
-        {Object.keys(this.state.accounts).length ?  
-          (
+        <VortexWeb3Loaded>
           <Container>
             <Row>
-              <Form inline>
-                <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
-                  <Label htmlFor="i-address" className="mr-sm-5">Total Amount to be split:</Label>            
-                  <Input type="number" value={this.state.amount} onChange={this.handleAmount} id="i-amount" placeholder="1 wei = 1 * 10^-18 eth"/>
-                </FormGroup>
-                <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
-                  <Label htmlFor="i-address" className="mr-sm-5">Amount Returned:</Label>            
-                  <Input type="number" value={this.state.refund} readOnly/>
-                </FormGroup>
-                <Button color="success" onClick={this.handleSplit}>Split!</Button>
-              </Form>
+              <Col>
+              <Navbar color="primary" light expand="md">
+
+                <NavbarBrand href="#">
+                    SplitEth
+                </NavbarBrand>
+                <Nav className="ml-auto" navbar>
+                  <NavItem>
+                    <NavLink>{this.state.currentAccount}</NavLink>
+                  </NavItem>
+                  <NavItem>
+                  </NavItem>
+                  <NavItem>
+                    <NavLink>{this.state.balance} wei</NavLink>
+                  </NavItem>
+                </Nav>
+              </Navbar>
+              </Col>
             </Row>
+            
             <br/>
-            <Row>
-              <Col><Input type="text" value={this.state.fileName} onChange={this.handleFileName} id="i-filename" placeholder="file.json" /></Col>
-              <Col><Button color="primary" onClick={this.exportToJson}>Export file</Button></Col>
-              <Col>
+
+            <Form inline>
+              <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
+                <Label htmlFor="i-address" className="mr-sm-5">Address:</Label>            
+                <Input type="text" value={this.state.address} onChange={this.handleAddress} id="i-address" placeholder="0x1234" />
+              </FormGroup>
+              
+              <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
+                <Label htmlFor="i-address" className="mr-sm-5">Name:</Label>            
+                <Input type="text" value={this.state.name} onChange={this.handleName} id="i-name"/>
+              </FormGroup>
+              <Button color="primary" onClick={this.handleSubmit}>Submit</Button>
+            </Form>
+
+            <br/>
+
+            <Tableux 
+              data={this.state.accounts} 
+              header={[
+                {name:"Address", prop:"address"},
+                {name:"Name", prop:"name"}, 
+                {name:"Balance", prop:"balance"},
+                {name:"Share", prop:"share"},
+                {name:"Payout", prop:"payout"},
+                {name:"Delete", prop:"remove"},
+                {name:"Edit", prop:"edit"}]} >
+            </Tableux>
+
+            <br/>
+            
+            {Object.keys(this.state.accounts).length ?  
+              (
+              <Container>
                 <Row>
+                  <Form inline>
+                    <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
+                      <Label htmlFor="i-address" className="mr-sm-5">Total Amount to be split:</Label>            
+                      <Input type="number" value={this.state.amount} onChange={this.handleAmount} id="i-amount" placeholder="1 wei = 1 * 10^-18 eth"/>
+                    </FormGroup>
+                    <FormGroup className="mb-2 mr-sm-5 mb-sm-0">
+                      <Label htmlFor="i-address" className="mr-sm-5">Amount Returned:</Label>            
+                      <Input type="number" value={this.state.refund} readOnly/>
+                    </FormGroup>
+                    <Button color="success" onClick={this.handleSplit}>Split!</Button>
+                  </Form>
+                </Row>
+                <br/>
+                <Row>
+                  <Col><Input type="text" value={this.state.fileName} onChange={this.handleFileName} id="i-filename" placeholder="file.json" /></Col>
+                  <Col><Button color="primary" onClick={this.exportToJson}>Export file</Button></Col>
+                  <Col>
+                    <Row>
+                      <Col></Col>
+                      <Col>
+                        <input 
+                          ref={input => this.inputElement = input}
+                          type="file"
+                          onChange={this.handleUploadedFileName}
+                          style={{display:"none"}}
+                        />
+                      </Col>
+                      <Col><Button onClick={() => this.inputElement.click()} color="secondary">Import file</Button></Col>
+                      <Col><Button color="secondary">Import receipt</Button></Col>
+                    </Row>
+                  </Col>
+                </Row>
+              </Container>
+              )
+              : 
+              (<Row>
+                  <Col></Col>
                   <Col></Col>
                   <Col>
-                    <input 
-                      ref={input => this.inputElement = input}
-                      type="file"
-                      onChange={this.handleUploadedFileName}
-                      style={{display:"none"}}
-                    />
+                    <Row>
+                      <Col></Col>
+                      <Col>
+                        <input 
+                          ref={input => this.inputElement = input}
+                          type="file"
+                          onChange={this.handleUploadedFileName}
+                          style={{display:"none"}}
+                        />
+                      </Col>
+                      <Col><Button onClick={() => this.inputElement.click()} color="secondary">Import file</Button></Col>
+                      <Col><Button color="secondary">Import receipt</Button></Col>
+                    </Row>
                   </Col>
-                  <Col><Button onClick={() => this.inputElement.click()} color="secondary">Import file</Button></Col>
-                  <Col><Button color="secondary">Import receipt</Button></Col>
-                </Row>
-              </Col>
-            </Row>
+                </Row>)
+            }
           </Container>
-          )
-          : 
-          (<Row>
-              <Col></Col>
-              <Col></Col>
-              <Col>
-                <Row>
-                  <Col></Col>
-                  <Col>
-                    <input 
-                      ref={input => this.inputElement = input}
-                      type="file"
-                      onChange={this.handleUploadedFileName}
-                      style={{display:"none"}}
-                    />
-                  </Col>
-                  <Col><Button onClick={() => this.inputElement.click()} color="secondary">Import file</Button></Col>
-                  <Col><Button color="secondary">Import receipt</Button></Col>
-                </Row>
-              </Col>
-            </Row>)
-        }
-      </Container>
+        </VortexWeb3Loaded>
+
+        <VortexWeb3Loading>
+                    <div className="App">
+
+                        <main className="container">
+                            <div className="pure-g">
+                                <div className="pure-u-1-1">
+                                    <h1>Loading ... </h1>
+                                </div>
+                            </div>
+                        </main>
+                    </div>
+                </VortexWeb3Loading>
+
+
+                <VortexWeb3LoadError>
+                    <div className="App">
+
+                        <main className="container">
+                            <div className="pure-g">
+                                <div className="pure-u-1-1">
+                                    <h1>Oops!</h1>
+                                    <p>Looks like there is a problem with your Web3. Check that you unlocked your account, that Web3 is properly connected to a network and that your loader resolves a web3@1.0.0+ version of Web3 !</p>
+                                </div>
+                            </div>
+                        </main>
+                    </div>
+                </VortexWeb3LoadError>
+
+
+                <VortexWeb3NetworkError>
+                    <div className="App">
+
+                        <main className="container">
+                            <div className="pure-g">
+                                <div className="pure-u-1-1">
+                                    <h1>Oops!</h1>
+                                    <p>We could not find your smart contracts on the current network :(.<br/> Please check if you are on the good network !</p>
+                                </div>
+                            </div>
+                        </main>
+                    </div>
+                </VortexWeb3NetworkError>
+
+
+                <VortexWeb3Locked>
+                    <div className="App">
+
+                        <main className="container">
+                            <div className="pure-g">
+                                <div className="pure-u-1-1">
+                                    <h1>Psst!</h1>
+                                    <p>Looks like someone forgot to unlock its wallet provider ;)</p>
+                                </div>
+                            </div>
+                        </main>
+                    </div>
+                </VortexWeb3Locked>
+      </VortexGate>
+
     );
   }
 }
