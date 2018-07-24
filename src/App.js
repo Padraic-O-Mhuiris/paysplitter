@@ -7,7 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import cloneDeep from 'lodash/cloneDeep';
 import './App.css'
 
-const Splitter = require("../build/contracts/Splitter.json")
+const Proceeds = require("../build/contracts/Proceeds.json")
 
 import {
   Alert,
@@ -112,10 +112,10 @@ class App extends Component {
   }
 
   instantiateContract() {
-    var contractAddress = Splitter.networks[Object.keys(Splitter.networks)[Object.keys(Splitter.networks).length - 1]].address
-    var splitterContract = new this.state.web3.eth.Contract(Splitter.abi, contractAddress);
+    var contractAddress = Proceeds.networks[Object.keys(Proceeds.networks)[Object.keys(Proceeds.networks).length - 1]].address
+    var _contract = new this.state.web3.eth.Contract(Proceeds.abi, contractAddress);
     this.setState({
-      contract: splitterContract
+      contract: _contract
     })
   }
 
@@ -209,7 +209,7 @@ class App extends Component {
     var tw = this.getTotalWeight(this.state.accounts)
 
     if(Object.keys(this.state.accounts).length === tw) {
-      this.state.contract.methods.splitEther(
+      this.state.contract.methods.payEther(
         Object.keys(this.state.accounts)
       ).send({from: this.state.currentAccount, value:this.state.amount}
       ).on('transactionHash', function(hash){
@@ -230,7 +230,7 @@ class App extends Component {
         arr.push(this.state.accounts[address].weight)
       }
 
-      this.state.contract.methods.splitEtherWeighted(
+      this.state.contract.methods.payEtherWeighted(
         Object.keys(this.state.accounts),
         arr
       ).send({from: this.state.currentAccount, value:this.state.amount}

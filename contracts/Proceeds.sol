@@ -1,10 +1,10 @@
 pragma solidity ^0.4.24;
 
-contract Splitter {
+contract Proceeds {
     
     address public owner;
     
-    event SplitLog(
+    event payLog(
         address[] recipients,
         uint[] weights,
         address sender,
@@ -14,11 +14,11 @@ contract Splitter {
         uint timestamp
     );
 
-    event SplitFixed(
+    event payLogFixed(
         address[] recipients,
         uint[] values,
         uint timestamp
-    )
+    );
 
     constructor() public {
         owner = msg.sender;
@@ -27,8 +27,17 @@ contract Splitter {
     function() public payable {
         revert(); 
     }
+
+    function getArrSum(uint[] arr) internal pure returns (uint) {
+        uint arrSum = 0;
+        for(uint i = 0; i < arr.length; i++) {
+            arrSum += arr[i];
+        }
+        
+        return arrSum;
+    }
     
-    function splitEther(address[] recipients) public payable {
+    function payEther(address[] recipients) public payable {
         uint spill = msg.value % recipients.length;
         uint transfer_balance = msg.value - spill;
         uint split_balance = transfer_balance / recipients.length;
@@ -40,19 +49,10 @@ contract Splitter {
             msg.sender.transfer(spill);
         }
         uint[] memory nullArray; 
-        emit SplitLog(recipients, nullArray, msg.sender, msg.value, split_balance, spill, now);
+        emit payLog(recipients, nullArray, msg.sender, msg.value, split_balance, spill, now);
     }
-    
-    function getArrSum(uint[] arr) internal pure returns (uint) {
-        uint arrSum = 0;
-        for(uint i = 0; i < arr.length; i++) {
-            arrSum += arr[i];
-        }
         
-        return weightSum;
-    }
-    
-    function splitEtherWeighted(address[] recipients, uint[] weights) public payable {
+    function payEtherWeighted(address[] recipients, uint[] weights) public payable {
         require(recipients.length == weights.length);
         
         uint weightSum = getArrSum(weights);
@@ -68,10 +68,10 @@ contract Splitter {
             msg.sender.transfer(spill);
         }
         
-        emit SplitLog(recipients, weights, msg.sender, msg.value, split_balance, spill, now);
+        emit payLog(recipients, weights, msg.sender, msg.value, split_balance, spill, now);
     }
 
-    function splitEtherFixed(address[] recipients, uint[] amounts) public payable {
+    function payEtherFixed(address[] recipients, uint[] amounts) public payable {
         require(recipients.length == amounts.length);
         require(msg.value == getArrSum(amounts));
 
@@ -79,6 +79,6 @@ contract Splitter {
             recipients[i].transfer(amounts[i]);
         }
 
-        emit SplitFixed(recipients, amounts, now);
+        emit payLogFixed(recipients, amounts, now);
     }
 }
