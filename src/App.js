@@ -206,11 +206,9 @@ class App extends Component {
   }
 
   handleSplit() {
-    
     var tw = this.getTotalWeight(this.state.accounts)
 
     if(Object.keys(this.state.accounts).length === tw) {
-      console.log("Split equal")
       this.state.contract.methods.splitEther(
         Object.keys(this.state.accounts)
       ).send({from: this.state.currentAccount, value:this.state.amount}
@@ -226,8 +224,6 @@ class App extends Component {
         console.log(confirmationNumber, receipt)
       })
     } else {
-      console.log("Split weighted")
-
       var arr = []
 
       for(let address of Object.keys(this.state.accounts)) {

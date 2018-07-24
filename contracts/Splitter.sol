@@ -14,6 +14,12 @@ contract Splitter {
         uint timestamp
     );
 
+    event SplitFixed(
+        address[] recipients,
+        uint[] values,
+        uint timestamp
+    )
+
     constructor() public {
         owner = msg.sender;
     }
@@ -37,10 +43,10 @@ contract Splitter {
         emit SplitLog(recipients, nullArray, msg.sender, msg.value, split_balance, spill, now);
     }
     
-    function getWeightSum(uint[] weights) internal pure returns (uint) {
-        uint weightSum = 0;
-        for(uint i = 0; i < weights.length; i++) {
-            weightSum += weights[i];
+    function getArrSum(uint[] arr) internal pure returns (uint) {
+        uint arrSum = 0;
+        for(uint i = 0; i < arr.length; i++) {
+            arrSum += arr[i];
         }
         
         return weightSum;
@@ -49,7 +55,7 @@ contract Splitter {
     function splitEtherWeighted(address[] recipients, uint[] weights) public payable {
         require(recipients.length == weights.length);
         
-        uint weightSum = getWeightSum(weights);
+        uint weightSum = getArrSum(weights);
         uint spill = msg.value % weightSum;
         uint transfer_balance = msg.value - spill;
         uint split_balance = transfer_balance / weightSum;
@@ -63,5 +69,16 @@ contract Splitter {
         }
         
         emit SplitLog(recipients, weights, msg.sender, msg.value, split_balance, spill, now);
+    }
+
+    function splitEtherFixed(address[] recipients, uint[] amounts) public payable {
+        require(recipients.length == amounts.length);
+        require(msg.value == getArrSum(amounts));
+
+        for(uint i = 0; i < recipients.length; i++) {
+            recipients[i].transfer(amounts[i]);
+        }
+
+        emit SplitFixed(recipients, amounts, now);
     }
 }
